@@ -1,0 +1,31 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  proxy:
+    image: nginx:latest
+    container_name: 'proxy'
+    privileged: true
+    volumes:
+      - ./html:/usr/share/nginx/html
+      - ./conf/:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+
+  scope:
+    image: weaveworks/scope:1.13.1
+    ports:
+      - "4040:4040"
+    pid: "host"
+    privileged: true
+    labels:
+      - "works.weave.role=system"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+    command:
+      - "--probe.docker=true"
+    restart: always
+networks:
+  default:
+    external:
+      name: test_network
